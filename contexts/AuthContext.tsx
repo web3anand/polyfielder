@@ -51,7 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Privy user object structure: user.linkedAccounts or user.wallet
   const userAddress = 
     user?.wallet?.address || 
-    user?.linkedAccounts?.find((acc: any) => acc.type === 'wallet')?.address ||
+    (user?.linkedAccounts?.find((acc: any) => acc.type === 'wallet') as any)?.address ||
     null;
 
   const value: AuthContextType = {
