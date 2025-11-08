@@ -1,9 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Groq from 'groq-sdk';
-
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY || '',
-});
 
 export interface OddsAnalysis {
   trueProb: number;
@@ -30,12 +25,32 @@ export async function POST(request: NextRequest) {
   try {
     const { marketData, histData, histQuery } = await request.json();
 
+    // Check if Groq is configured
     if (!process.env.GROQ_API_KEY) {
       return NextResponse.json(
-        { error: 'Groq API key not configured' },
-        { status: 500 }
+        {
+          success: false,
+          error: 'Groq API key not configured',
+          analysis: {
+            trueProb: 0.5,
+            EV: 0,
+            bet: {
+              side: 'YES' as const,
+              amount: '$0',
+              price: '0.50',
+            },
+            rationale: 'AI analysis is not available. Please configure GROQ_API_KEY.',
+          },
+        },
+        { status: 503 }
       );
     }
+
+    // Import Groq SDK
+    const Groq = (await import('groq-sdk')).default;
+    const groq = new Groq({
+      apiKey: process.env.GROQ_API_KEY,
+    });
 
     const histContext = histData?.length > 0
       ? JSON.stringify(histData.slice(0, 10)) // Limit to top 10 results

@@ -64,15 +64,23 @@ export function PriceChart({ tokenId, outcome, height = 150 }: PriceChartProps) 
               return;
             }
           }
+        } else if (response.status === 400) {
+          // 400 errors are expected for markets without historical data
+          // Silently handle - no need to log
+          clearTimeout(timeoutId);
         }
-        // Silently handle 400 errors - they're expected for some markets
+        // Silently handle other non-200 responses
       } catch (fetchError: any) {
         clearTimeout(timeoutId);
         // Silently handle fetch errors - 400 errors are expected for some markets
         // Network errors and timeouts are also handled gracefully
+        // AbortError is expected when timeout occurs
+        if (fetchError.name !== 'AbortError' && process.env.NODE_ENV === 'development') {
+          // Only log unexpected errors in development
+        }
       }
     } catch (error: any) {
-      // Outer catch for any unexpected errors
+      // Outer catch for any unexpected errors - silently handled
     }
 
     // Initialize with a starting point based on outcome

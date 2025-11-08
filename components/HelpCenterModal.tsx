@@ -33,11 +33,11 @@ export function HelpCenterModal({ isOpen, onClose }: HelpCenterModalProps) {
   return (
     <SettingsModal isOpen={isOpen} onClose={onClose} title="Help Center">
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {helpItems.map((item, index) => {
+        {helpItems.map((item) => {
           const Icon = item.icon;
           return (
             <button
-              key={index}
+              key={item.title}
               onClick={item.action}
               style={{
                 display: 'flex',

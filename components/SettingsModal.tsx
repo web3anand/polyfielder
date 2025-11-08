@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { X } from 'lucide-react';
 
 interface SettingsModalProps {
@@ -97,7 +98,15 @@ export function SettingsModal({ isOpen, onClose, title, children }: SettingsModa
 
         {/* Content */}
         <div style={{ padding: '20px' }}>
-          {children}
+          {React.Children.map(children, (child, index) => {
+            if (React.isValidElement(child)) {
+              // If child already has a key, use it; otherwise add one
+              return child.key !== null && child.key !== undefined
+                ? child
+                : React.cloneElement(child, { key: `modal-child-${index}` });
+            }
+            return child;
+          })}
         </div>
       </div>
 

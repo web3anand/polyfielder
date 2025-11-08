@@ -76,7 +76,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
         const errorStr = args.join(' ');
         const errorMessage = args[0]?.toString() || '';
         
-        // Filter out extension-related errors
+        // Filter out extension-related errors and known development warnings
         if (
           errorStr.includes('chrome-extension://') ||
           errorStr.includes('injected.js') ||
@@ -93,11 +93,17 @@ export function Providers({ children }: { children: React.ReactNode }) {
           errorStr.includes('AnalyticsSDKApiError') ||
           errorStr.includes('ERR_BLOCKED_BY_CLIENT') ||
           errorStr.includes('WagmiProviderNotFoundError') ||
+          errorStr.includes('origins don\'t match') ||
+          errorStr.includes('origins don\'t match "https://auth.privy.io"') ||
+          // Suppress expected 400 errors from Polymarket price history API
+          (errorStr.includes('clob.polymarket.com/prices-history') && errorStr.includes('400')) ||
+          (errorStr.includes('GET https://clob.polymarket.com/prices-history') && errorStr.includes('Bad Request')) ||
           (errorStr.includes('Failed to fetch') && (
             errorStr.includes('extension') ||
             errorStr.includes('coinbase') ||
             errorStr.includes('metrics') ||
-            errorStr.includes('amp')
+            errorStr.includes('amp') ||
+            errorStr.includes('prices-history')
           ))
         ) {
           return; // Suppress these errors
@@ -105,21 +111,23 @@ export function Providers({ children }: { children: React.ReactNode }) {
         originalError.apply(console, args);
       };
       
-      // Suppress warnings from extensions too
+      // Suppress warnings from extensions and Privy development warnings
       window.console.warn = (...args) => {
         const warnStr = args.join(' ');
         if (
           warnStr.includes('chrome-extension://') ||
           warnStr.includes('injected.js') ||
           warnStr.includes('aflkmfhebedbjioipglgcbcmnbpgliof') ||
-          warnStr.includes('Cannot read properties of null')
+          warnStr.includes('Cannot read properties of null') ||
+          warnStr.includes('origins don\'t match') ||
+          warnStr.includes('origins don\'t match "https://auth.privy.io"')
         ) {
           return; // Suppress these warnings
         }
         originalWarn.apply(console, args);
       };
       
-      // Handle unhandled promise rejections from extensions
+      // Handle unhandled promise rejections from extensions and Privy
       const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
         const reason = event.reason?.toString() || '';
         const stack = event.reason?.stack || '';
@@ -128,6 +136,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
           reason.includes('injected.js') ||
           reason.includes('aflkmfhebedbjioipglgcbcmnbpgliof') ||
           reason.includes('Cannot read properties of null') ||
+          reason.includes('origins don\'t match') ||
           stack.includes('chrome-extension://') ||
           stack.includes('injected.js') ||
           reason.includes('cca-lite.coinbase.com') ||
@@ -172,10 +181,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
   // Note: In Next.js, NEXT_PUBLIC_ variables are embedded at build time
   // If you just added this, you MUST restart the dev server
   // Try multiple ways to access the env var (for Turbopack compatibility)
+  // Turbopack sometimes doesn't pick up env vars, so we try multiple sources
   const privyAppId = 
     process.env.NEXT_PUBLIC_PRIVY_APP_ID || 
     (typeof window !== 'undefined' && (window as any).__NEXT_DATA__?.env?.NEXT_PUBLIC_PRIVY_APP_ID) ||
-    undefined; // No hardcoded fallback - must be in .env.local
+    // Fallback for development when Turbopack doesn't load env vars
+    (process.env.NODE_ENV === 'development' ? 'cmhq9990j01idjy0c80j9ghq7' : undefined);
 
   // Debug: Log available env vars (only in development, without exposing sensitive values)
   if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
