@@ -243,7 +243,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
             // logo: '/icon.png', // Optional - commented out to avoid 404
           },
           embeddedWallets: {
-            createOnLogin: 'users-without-wallets',
+            ethereum: {
+              createOnLogin: 'users-without-wallets',
+            },
           },
           defaultChain: polygon,
           supportedChains: [polygon],
