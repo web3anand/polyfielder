@@ -41,14 +41,13 @@ export function SettingsModal({ isOpen, onClose, title, children }: SettingsModa
           background: 'var(--background-primary)',
           borderRadius: '24px',
           zIndex: 9999,
-          maxWidth: '90vw',
+          maxWidth: '500px',
           maxHeight: '90vh',
           overflowY: 'auto',
           animation: 'slideUpSmooth 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
           border: '1px solid var(--border-primary)',
           width: '100%',
-          maxWidth: '500px',
         }}
       >
         {/* Header */}
