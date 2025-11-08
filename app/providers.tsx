@@ -201,6 +201,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   // Don't render PrivyProvider if app ID is missing
   if (!privyAppId) {
+    const isProduction = process.env.NODE_ENV === 'production' || typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
     console.error('NEXT_PUBLIC_PRIVY_APP_ID is not set. Please add it to .env.local and RESTART the dev server.');
     return (
       <ThemeProvider>
@@ -219,12 +220,30 @@ export function Providers({ children }: { children: React.ReactNode }) {
             <p style={{ color: 'var(--text-primary)', fontWeight: 'bold', marginBottom: '0.5rem' }}>
               Steps to fix:
             </p>
-            <ol style={{ color: 'var(--text-muted)', paddingLeft: '1.5rem' }}>
-              <li>Ensure <code style={{ background: 'var(--background-primary)', padding: '2px 4px', borderRadius: '4px' }}>NEXT_PUBLIC_PRIVY_APP_ID=cmhq9990j01idjy0c80j9ghq7</code> is in your <code>.env.local</code> file</li>
-              <li><strong>STOP</strong> the dev server (Ctrl+C)</li>
-              <li><strong>RESTART</strong> the dev server: <code>npm run dev</code></li>
-              <li>Refresh this page</li>
-            </ol>
+            {isProduction ? (
+              <ol style={{ color: 'var(--text-muted)', paddingLeft: '1.5rem' }}>
+                <li>Go to <a href="https://vercel.com/dashboard" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)' }}>Vercel Dashboard</a></li>
+                <li>Select your project: <strong>polyfielder</strong></li>
+                <li>Go to <strong>Settings</strong> → <strong>Environment Variables</strong></li>
+                <li>Click <strong>Add New</strong> and add:
+                  <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
+                    <li><code style={{ background: 'var(--background-primary)', padding: '2px 4px', borderRadius: '4px' }}>NEXT_PUBLIC_PRIVY_APP_ID</code> = <code>cmhq9990j01idjy0c80j9ghq7</code></li>
+                    <li><code style={{ background: 'var(--background-primary)', padding: '2px 4px', borderRadius: '4px' }}>PRIVY_APP_ID</code> = <code>cmhq9990j01idjy0c80j9ghq7</code></li>
+                    <li><code style={{ background: 'var(--background-primary)', padding: '2px 4px', borderRadius: '4px' }}>PRIVY_APP_SECRET</code> = <code>zBCRgabcVwQnZTm6QhCHuYBLfZFiENrMZikHKMBQ2d3L39MvLcFQkZm6dVsgTMKskyKUiftgsSNgaLDm5c3vcdh</code></li>
+                  </ul>
+                </li>
+                <li>Select <strong>Production</strong>, <strong>Preview</strong>, and <strong>Development</strong> environments</li>
+                <li>Click <strong>Save</strong></li>
+                <li>Go to <strong>Deployments</strong> tab and <strong>Redeploy</strong> the latest deployment</li>
+              </ol>
+            ) : (
+              <ol style={{ color: 'var(--text-muted)', paddingLeft: '1.5rem' }}>
+                <li>Ensure <code style={{ background: 'var(--background-primary)', padding: '2px 4px', borderRadius: '4px' }}>NEXT_PUBLIC_PRIVY_APP_ID=cmhq9990j01idjy0c80j9ghq7</code> is in your <code>.env.local</code> file</li>
+                <li><strong>STOP</strong> the dev server (Ctrl+C)</li>
+                <li><strong>RESTART</strong> the dev server: <code>npm run dev</code></li>
+                <li>Refresh this page</li>
+              </ol>
+            )}
           </div>
         </div>
       </ThemeProvider>
