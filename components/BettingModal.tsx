@@ -11,7 +11,7 @@ interface BettingModalProps {
     id: string;
     question: string;
     odds: { yes: number; no: number };
-    liquidity: number;
+    liquidity?: number;
   };
   selectedOutcome: 'YES' | 'NO';
   onPlaceBet: (marketId: string, outcome: 'YES' | 'NO', amount: string) => void;
