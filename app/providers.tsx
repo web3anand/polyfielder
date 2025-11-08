@@ -185,8 +185,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const privyAppId = 
     process.env.NEXT_PUBLIC_PRIVY_APP_ID || 
     (typeof window !== 'undefined' && (window as any).__NEXT_DATA__?.env?.NEXT_PUBLIC_PRIVY_APP_ID) ||
-    // Fallback for development when Turbopack doesn't load env vars
-    (process.env.NODE_ENV === 'development' ? 'cmhq9990j01idjy0c80j9ghq7' : undefined);
+    // Temporary fallback - REMOVE THIS AFTER ADDING ENV VARS IN VERCEL
+    // This allows the app to load but you MUST add the env var in Vercel for production
+    'cmhq9990j01idjy0c80j9ghq7';
 
   // Debug: Log available env vars (only in development, without exposing sensitive values)
   if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
@@ -201,8 +202,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   // Don't render PrivyProvider if app ID is missing
   if (!privyAppId) {
-    const isProduction = process.env.NODE_ENV === 'production' || typeof window !== 'undefined' && window.location.hostname.includes('vercel.app');
-    console.error('NEXT_PUBLIC_PRIVY_APP_ID is not set. Please add it to .env.local and RESTART the dev server.');
+    // Detect if we're on Vercel (production deployment)
+    const isVercel = typeof window !== 'undefined' && (
+      window.location.hostname.includes('vercel.app') || 
+      window.location.hostname.includes('vercel.com')
+    );
+    const isProduction = process.env.NODE_ENV === 'production' || isVercel;
+    
+    console.error('NEXT_PUBLIC_PRIVY_APP_ID is not set.', isProduction ? 'Add it to Vercel environment variables and redeploy.' : 'Add it to .env.local and RESTART the dev server.');
     return (
       <ThemeProvider>
         <div style={{ padding: '2rem', textAlign: 'center', maxWidth: '600px', margin: '0 auto' }}>
