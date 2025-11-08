@@ -82,7 +82,7 @@ export const initPMWithBuilder = async (
           
           // Configure builder credentials
           // Option 1: Use remote signing server (recommended for production)
-          // Option 2: Use local credentials (for development)
+          // Configure builder credentials
           let builderConfig: any;
           
           if (BuilderConfig) {
@@ -94,10 +94,13 @@ export const initPMWithBuilder = async (
               });
             } else {
               // Use local credentials (for development)
+              // BuilderApiKeyCreds structure may vary - use type assertion
               builderConfig = new BuilderConfig({
-                apiKey: builderApiKey,
-                secret: builderSecret,
-                passphrase: builderPassphrase,
+                localBuilderCreds: {
+                  apiKey: builderApiKey,
+                  secret: builderSecret,
+                  passphrase: builderPassphrase,
+                } as any
               });
             }
           } else {

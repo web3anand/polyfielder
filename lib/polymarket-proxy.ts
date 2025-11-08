@@ -448,7 +448,12 @@ export async function createProxyClient(
     } else if (privyWallet.address) {
       // Fallback: Create signer from provider
       // Note: This may not work for signing - use Privy's signing methods instead
-      signer = await provider.getSigner(privyWallet.address);
+      // In ethers v6, BrowserProvider.getSigner() doesn't take an address parameter
+      if (provider instanceof ethers.BrowserProvider) {
+        signer = await (provider as ethers.BrowserProvider).getSigner();
+      } else {
+        throw new Error('Cannot create signer from provider - use Privy wallet signer instead');
+      }
     } else {
       throw new Error('Invalid Privy wallet: missing signer or address');
     }
@@ -460,7 +465,8 @@ export async function createProxyClient(
     
     if (!finalProxyAddress) {
       // Find proxy wallet - pass provider for on-chain queries
-      finalProxyAddress = await getPolymarketProxy(mainAddress, provider);
+      const foundProxy = await getPolymarketProxy(mainAddress, provider);
+      finalProxyAddress = foundProxy || undefined;
     }
 
     if (!finalProxyAddress) {

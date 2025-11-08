@@ -7,7 +7,7 @@ const protectedRoutes = ['/portfolio', '/profile', '/history'];
 // Routes that should redirect to home if already authenticated
 const authRoutes = ['/login'];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // Check for auth token in cookies or headers
