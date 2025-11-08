@@ -57,7 +57,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-weight: 400;
   letter-spacing: -0.01em;
-  padding-top: calc(0.625rem + 1.25rem + 0.625rem + 1px); /* Compact header height only */
+  padding-top: 0;
   padding-bottom: calc(4rem + env(safe-area-inset-bottom)); /* New compact navbar height */
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
@@ -71,7 +71,12 @@ body {
 
 /* Dashboard-specific padding for filters and search bar */
 .dashboard-main {
-  padding-top: calc(2.5rem + 3rem); /* Filters (2.5rem) + Search (3rem) */
+  min-height: 100vh;
+  background: var(--background);
+  padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1rem, 6vw, 2.5rem) 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 5vw, 2.5rem);
 }
 
 /* ============================================================================
@@ -300,38 +305,40 @@ h3 {
    ============================================================================ */
 
 .app-header {
-  background: var(--background-elevated);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 50;
-  border-bottom: 1px solid var(--border);
   width: 100%;
-  max-width: 100vw;
   box-sizing: border-box;
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  background: linear-gradient(135deg, var(--background-elevated) 0%, rgba(74, 144, 226, 0.08) 100%);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 [data-theme='dark'] .app-header {
-  border-bottom: 1px solid var(--border);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, rgba(35, 35, 35, 0.95) 0%, rgba(74, 144, 226, 0.18) 100%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 
-.header-container {
+.header-shell {
   width: 100%;
-  padding: 0.625rem clamp(1rem, 4vw, 1.5rem);
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 6vw, 3rem) clamp(1rem, 4vw, 2.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.header-top {
   display: flex;
   align-items: center;
-  justify-content: center;
-  max-width: 100%;
-  box-sizing: border-box;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .header-title {
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   font-weight: 800;
   color: var(--text-primary);
   letter-spacing: -0.03em;
@@ -345,50 +352,250 @@ h3 {
   text-transform: uppercase;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.header-action-primary,
+.header-action-secondary,
+.header-action-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+  padding: 0.65rem 1.4rem;
+  font-size: 0.875rem;
+}
+
+.header-action-primary {
+  background: var(--primary);
+  color: #fff;
+  box-shadow: 0 10px 25px rgba(74, 144, 226, 0.35);
+}
+
+.header-action-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(74, 144, 226, 0.4);
+  background: var(--primary-hover);
+}
+
+.header-action-secondary {
+  color: var(--text-secondary);
+  padding-inline: 0;
+  background: transparent;
+}
+
+.header-action-secondary:hover {
+  color: var(--text-primary);
+}
+
+.header-action-outline {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+.header-action-outline:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.header-hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(1.75rem, 5vw, 3rem);
+}
+
+.header-hero-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  max-width: 640px;
+}
+
+.header-eyebrow {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--primary);
+}
+
+.header-headline {
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(1.85rem, 4vw, 2.75rem);
+  line-height: 1.15;
+  margin: 0;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+}
+
+.header-subheadline {
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.header-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.header-hero-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  align-self: center;
+  width: 100%;
+}
+
+.header-metric-card {
+  background: rgba(255, 255, 255, 0.65);
+  border-radius: 16px;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  box-shadow: 0 20px 40px rgba(74, 144, 226, 0.1);
+  backdrop-filter: blur(12px);
+}
+
+[data-theme='dark'] .header-metric-card {
+  background: rgba(35, 35, 35, 0.75);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.header-metric-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.header-metric-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
 @media (min-width: 768px) {
   .header-title {
-    font-size: 1.375rem;
+    font-size: 1.5rem;
   }
-  
-  .header-container {
-    padding: 0.75rem clamp(1rem, 4vw, 1.5rem);
+
+  .header-hero {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
+    align-items: center;
+  }
+
+  .header-metric-card {
+    padding: 1.25rem 1.5rem;
   }
 }
 
 /* ============================================================================
-   5. LAYOUT - CATEGORY FILTERS (FIXED)
+   5. LAYOUT - FILTER TOOLBAR
    ============================================================================ */
 
-.sport-filter-container {
-  position: fixed;
-  top: calc(0.625rem + 1.25rem + 0.625rem + 1px); /* Compact header: padding-top + title + padding-bottom + border */
-  left: 0;
-  right: 0;
-  z-index: 39;
-  background: var(--background-elevated);
-  padding: 0;
-  padding-left: clamp(1rem, 4vw, 1.5rem);
-  padding-right: clamp(1rem, 4vw, 1.5rem);
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  width: 100%;
-  max-width: 100vw;
-  box-sizing: border-box;
-  border-bottom: none;
+.dashboard-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 3vw, 1.5rem);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  box-shadow: var(--shadow-sm);
 }
 
-.sport-filter-container::-webkit-scrollbar {
-  display: none;
+.dashboard-toolbar-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.dashboard-toolbar-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.dashboard-toolbar-subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.dashboard-toolbar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.dashboard-toolbar-search {
+  width: 100%;
+  max-width: 100%;
 }
 
 .sport-filter-wrapper {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
-  min-width: max-content;
-  align-items: center;
+}
+
+.dashboard-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.summary-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.summary-card-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.summary-card-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
 }
 
 .sport-pill {
@@ -446,32 +653,17 @@ h3 {
   line-height: 1;
 }
 
-/* ============================================================================
-   6. LAYOUT - SEARCH BAR (FIXED)
-   ============================================================================ */
+@media (min-width: 768px) {
+  .dashboard-toolbar-actions {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
 
-.search-bar-wrapper-sticky {
-  position: fixed;
-  top: calc(0.625rem + 1.25rem + 0.625rem + 1px + 2.5rem); /* Compact header + Filters */
-  left: 0;
-  right: 0;
-  z-index: 40;
-  padding: 0;
-  padding-left: clamp(1rem, 4vw, 1.5rem);
-  padding-right: clamp(1rem, 4vw, 1.5rem);
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  width: 100%;
-  max-width: 100vw;
-  box-sizing: border-box;
-  background: var(--background-elevated);
-  border-bottom: 1px solid var(--border);
-  margin: 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-[data-theme='dark'] .search-bar-wrapper-sticky {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  .dashboard-toolbar-search {
+    max-width: 320px;
+    margin-left: auto;
+  }
 }
 
 .search-bar-container {
@@ -552,24 +744,17 @@ h3 {
    7. MARKET CARDS - LIST CONTAINER
    ============================================================================ */
 
-.market-list-container {
-  background: transparent;
-  padding: 1rem clamp(1rem, 4vw, 1.5rem) 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+.market-grid {
+  display: grid;
+  gap: clamp(1rem, 3vw, 1.5rem);
   width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  position: relative;
+  margin: 0 auto;
 }
 
-
-@media (min-width: 768px) {
-  .market-list-container {
+@media (min-width: 640px) {
+  .market-grid {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     max-width: 1280px;
-    margin: 0 auto;
-    gap: 1rem;
   }
 }
 

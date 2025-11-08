@@ -66,6 +66,28 @@ function DashboardContent() {
     );
   }, [markets, searchQuery]);
 
+  const compactCurrencyFormatter = useMemo(() => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      notation: 'compact',
+      maximumFractionDigits: 1,
+    });
+  }, []);
+
+  const totalLiquidity = useMemo(() => {
+    return markets.reduce((acc, market) => acc + (market.liquidity || 0), 0);
+  }, [markets]);
+
+  const liquidityDisplay = useMemo(() => {
+    if (totalLiquidity <= 0) return '$0';
+    return compactCurrencyFormatter.format(totalLiquidity);
+  }, [compactCurrencyFormatter, totalLiquidity]);
+
+  const currentViewLabel = useMemo(() => {
+    return selectedSport === 'All' ? 'All sports' : selectedSport;
+  }, [selectedSport]);
+
   const loadMarkets = useCallback(async (append = false, offset = 0) => {
     // Prevent multiple simultaneous calls
     if (isLoadingRef.current) {
@@ -300,7 +322,7 @@ function DashboardContent() {
 
   const handleBet = async (marketId: string, outcome: 'YES' | 'NO', amount: string) => {
     if (!polymarket || !address) {
-      alert('Please connect your wallet first');
+      showToast('Connect your wallet to place a bet.', 'info');
       return;
     }
 
@@ -310,11 +332,11 @@ function DashboardContent() {
       // Use Builder Relayer for gasless transactions if available
       if (relayerClient && useBuilder) {
         order = await placeBetWithBuilder(relayerClient, marketId, outcome, amount);
-        alert(`✅ Bet placed successfully via Builder Relayer (GASLESS)! ${outcome} $${amount}\nOrder ID: ${order.orderId}`);
+        showToast(`Bet placed via Builder Relayer • ${outcome} $${amount}`, 'success');
       } else {
         // Fallback to standard bet placement
         order = await placeBet(polymarket, marketId, outcome, amount);
-        alert(`Bet placed successfully! ${outcome} $${amount}`);
+        showToast(`Bet placed successfully • ${outcome} $${amount}`, 'success');
       }
 
       // Save to Supabase
@@ -335,33 +357,54 @@ function DashboardContent() {
   };
 
   return (
-    <main className="min-h-screen dashboard-main" style={{ background: 'var(--background)' }}>
+    <main id="markets" className="dashboard-main">
       <ToastContainer />
-      
-      {/* Sport Filter Bar - Scrolls normally */}
-      <div className="sport-filter-container">
-        <div className="sport-filter-wrapper">
-          {SPORTS.map((sport) => (
-            <button
-              key={sport.id}
-              onClick={() => setSelectedSport(sport.id)}
-              className={`sport-pill ${
-                selectedSport === sport.id
-                  ? 'sport-pill-selected'
-                  : 'sport-pill-unselected'
-              }`}
-            >
-              <span className="sport-icon">{sport.icon}</span>
-              <span className="sport-label">{sport.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
 
-      {/* Search Bar - Sticky with header */}
-      <div className="search-bar-wrapper-sticky">
-        <SearchBar value={searchQuery} onChange={setSearchQuery} />
-      </div>
+      <section className="dashboard-toolbar" aria-label="Market filters">
+        <div className="dashboard-toolbar-header">
+          <h2 className="dashboard-toolbar-title">Live Markets</h2>
+          <p className="dashboard-toolbar-subtitle">
+            Choose a sport and zero in on the events that matter to you.
+          </p>
+        </div>
+        <div className="dashboard-toolbar-actions">
+          <div className="sport-filter-wrapper">
+            {SPORTS.map((sport) => (
+              <button
+                key={sport.id}
+                onClick={() => setSelectedSport(sport.id)}
+                className={`sport-pill ${
+                  selectedSport === sport.id
+                    ? 'sport-pill-selected'
+                    : 'sport-pill-unselected'
+                }`}
+                type="button"
+              >
+                <span className="sport-icon">{sport.icon}</span>
+                <span className="sport-label">{sport.label}</span>
+              </button>
+            ))}
+          </div>
+          <div className="dashboard-toolbar-search">
+            <SearchBar value={searchQuery} onChange={setSearchQuery} />
+          </div>
+        </div>
+      </section>
+
+      <section className="dashboard-summary" aria-live="polite">
+        <div className="summary-card">
+          <span className="summary-card-label">Markets live</span>
+          <span className="summary-card-value">{filteredMarkets.length}</span>
+        </div>
+        <div className="summary-card">
+          <span className="summary-card-label">Total liquidity</span>
+          <span className="summary-card-value">{liquidityDisplay}</span>
+        </div>
+        <div className="summary-card">
+          <span className="summary-card-label">Current view</span>
+          <span className="summary-card-value">{currentViewLabel}</span>
+        </div>
+      </section>
 
       {/* Markets List */}
       {loading ? (
@@ -414,8 +457,8 @@ function DashboardContent() {
                 : 'Try selecting a different sport or check back later'}
           </p>
         </div>
-      ) : (
-        <div className="market-list-container">
+        ) : (
+          <div className="market-grid">
           {filteredMarkets.map((market: Market) => (
             <MarketCard
               key={String(market.id)}
